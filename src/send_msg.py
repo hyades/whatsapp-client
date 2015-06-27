@@ -1,6 +1,7 @@
 
-from layers.receivers.message_receiver import MessageReceiver
-from layers.receivers.receipt_receiver import ReceiptReceiver
+from layers.senders.text_message_sender import TextMessageSender
+from layers.receivers.ack_receiver import AckReceiver
+from models.sending_message import SendingMessage
 
 from yowsup.layers.auth import YowAuthenticationProtocolLayer
 from yowsup.layers.protocol_messages import YowMessagesProtocolLayer
@@ -19,22 +20,24 @@ logging.basicConfig(level=logging.INFO)
 import httplib as http_client
 http_client.HTTPConnection.debuglevel = 1
 
-
 CREDENTIALS = (
     conf.phone,
     conf.password
 )
 
 
-def main():
+def main(messages):
     logging.debug("Starting up...")
+
     layers = (
-        (MessageReceiver, ReceiptReceiver),
+        (TextMessageSender, AckReceiver),
         (YowAuthenticationProtocolLayer, YowMessagesProtocolLayer,
          YowReceiptProtocolLayer, YowAckProtocolLayer)
     ) + YOWSUP_CORE_LAYERS
 
     stack = YowStack(layers)
+
+    stack.setProp(TextMessageSender.MESSAGES, messages)
     # setting credentials
     stack.setProp(YowAuthenticationProtocolLayer.PROP_CREDENTIALS, CREDENTIALS)
     # whatsapp server address
@@ -49,4 +52,8 @@ def main():
     stack.loop()  # this is the program mainloop
 
 if __name__ == '__main__':
-    main()
+    messages = [
+        SendingMessage("919003273352@s.whatsapp.net", "hey1"),
+        SendingMessage("919003273352@s.whatsapp.net", "hey2")
+    ]
+    main(messages)

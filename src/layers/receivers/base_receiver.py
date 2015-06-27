@@ -2,6 +2,7 @@ import logging
 
 from yowsup.layers import YowLayer
 from yowsup.layers.protocol_receipts.protocolentities import OutgoingReceiptProtocolEntity
+from yowsup.layers.protocol_acks.protocolentities import OutgoingAckProtocolEntity
 
 
 __all__ = ['BaseReceiver']
@@ -58,4 +59,13 @@ class BaseReceiver(YowLayer):
             messageProtocolEntity.getFrom(),
             'read',
             messageProtocolEntity.getParticipant()
+        )
+
+    @classmethod
+    def getAckEntity(cls, receiptEntity):
+        return OutgoingAckProtocolEntity(
+            receiptEntity.getId(),
+            "receipt",
+            "delivery",
+            receiptEntity.getFrom()
         )
